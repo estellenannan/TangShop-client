@@ -31,3 +31,5 @@ export const reqUser = () => ajax('/api/userinfo');
 //8退出登录
 export const reqLogout = () => ajax('/api/logout');
 
+
+

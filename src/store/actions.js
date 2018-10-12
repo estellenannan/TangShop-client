@@ -10,8 +10,10 @@
 
 import {
   reqAddress,
-  reqFoodCategorys, reqLogout,
-  reqShops
+  reqFoodCategorys,
+  reqShops,
+  reqUser,
+  reqLogout
 } from '../api/index';
 
 import {
@@ -67,6 +69,15 @@ export default {
     const result = await reqLogout();
     if (result.code === 0) {
       commit(RESET_USER);
+    }
+  },
+  /*reqUser*/
+// 异步获取用户的action 刷新后还再登录
+  async getUser({commit}) {
+    const result = await  reqUser();
+    if (result.code === 0) {
+      const user = result.data;
+      commit(RECEIVE_USER, {user});
     }
   }
 

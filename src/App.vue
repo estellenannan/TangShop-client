@@ -14,6 +14,10 @@
     components: {
       FooterGuide
     },
+    mounted () {
+      //获取得user保存在state里面
+      this.$store.dispatch('getUser')
+    }
 
   }
 </script>
