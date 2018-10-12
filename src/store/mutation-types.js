@@ -13,3 +13,7 @@ export const RECEIVE_SHOPS = 'receive_shops';
 
 //接收每个用户信息
 export const RECEIVE_USER = 'receive_user';
+
+//重置用户信息
+export const RESET_USER = 'reset_user';
+

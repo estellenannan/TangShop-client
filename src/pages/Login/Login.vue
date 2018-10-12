@@ -32,10 +32,12 @@
           <div :class="{on: !loginWay}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
+                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名"
+                 v-model="name">
               </section>
               <section class="login_verification">
-                <input :type="isShowPwd ? 'text' : 'password'" maxlength="8" placeholder="密码">
+                <input :type="isShowPwd ? 'text' : 'password'" maxlength="8" placeholder="密码"
+                       v-model="pwd">
                 <div class="switch_button " @click="isShowPwd=!isShowPwd"
                      :class="isShowPwd ? 'on' : 'off'">
                   <div class="switch_circle" :class="{right:isShowPwd}"></div><!--让小圆球移动的-->
@@ -122,32 +124,38 @@
           } else if (!/^\d{6}/.test(code)) {
             return MessageBox.alert('请输入正确验证码')
           }
-                //发送登录的请求
-          result = await reqSmsLogin({ phone, code})
-        } else {//请求登录时账号密码登录 判断名字。。。是否正确
+          //发送登录的请求
+          result = await reqSmsLogin({phone, code})
+        } else {//请求登录时账号 密码登录
           const {name, pwd, captcha} = this;
-          if (!name) {
+          if (!name) {//判断名字。。。是否正确
             return MessageBox.alert('用户名必须指定');
           } else if (!pwd) {
             return MessageBox.alert('密码必须指定')
-          } else if (!/^\.{4}/.test(captcha)) {
+          } else if (!/^.{4}$/.test(captcha)) {
             return MessageBox.alert('请输入正确验证码')
           }
           //发送登录的请求
           result = await reqPwdLogin({name, pwd, captcha})
         }
 
-          // 根据请求的结果进行相应处理
-          if (result.code === 0) {//成功了
-            this.computeTime = 0;
-            //保存用户信息
-            this.$store.dispatch('saveUser',user);
+        // 请求结束后, 停止倒计时
+        this.computeTime = 0;
+        // 更新验证码
+        this.updateCaptcha();
 
-            // 跳转到个人中心界面
-            this.$router.replace('/profile');
-          } else {//失败了
-            return MessageBox.alert(result.msg)
-          }
+        // 根据请求的结果进行相应处理
+        if (result.code === 0) {//成功了
+          this.computeTime = 0;
+          const user = result.data;
+          // 将user保存到state
+          //保存用户信息
+          this.$store.dispatch('saveUser', user);
+          // 跳转到个人中心界面
+          this.$router.replace('/profile');
+        } else {//失败了
+          return MessageBox.alert(result.msg)
+        }
       }
 
 

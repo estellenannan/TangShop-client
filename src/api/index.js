@@ -22,9 +22,12 @@ export const reqPwdLogin = ({name, pwd, captcha}) => ajax('/api/login_pwd', {nam
 export const reqSendCode = (phone) => ajax('api/sendcode', {phone});
 
 //6,手机号验证码登录
-export const reqSmsLogin = ({phone,code}) => ajax('api/login_sms', {phone,code},'POST');
+export const reqSmsLogin = ({phone, code}) => ajax('api/login_sms', {phone, code}, 'POST');
 
 
 //7,获取用户信息(根据会话)
 export const reqUser = () => ajax('/api/userinfo');
+
+//8退出登录
+export const reqLogout = () => ajax('/api/logout');
 

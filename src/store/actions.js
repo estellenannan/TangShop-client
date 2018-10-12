@@ -10,7 +10,7 @@
 
 import {
   reqAddress,
-  reqFoodCategorys,
+  reqFoodCategorys, reqLogout,
   reqShops
 } from '../api/index';
 
@@ -18,7 +18,8 @@ import {
   RECEIVE_CATEGORYS,
   RECEIVE_ADDRESS,
   RECEIVE_SHOPS,
-  RECEIVE_USER
+  RECEIVE_USER,
+  RESET_USER
 } from './mutation-types'
 
 export default {
@@ -60,6 +61,13 @@ export default {
   //同步保存uesr
   saveUser({commit}, user) {
     commit(RECEIVE_USER, {user});
+  },
+  // 异步退出登陆的action
+  async logout({commit}) {
+    const result = await reqLogout();
+    if (result.code === 0) {
+      commit(RESET_USER);
+    }
   }
 
 }
