@@ -4,8 +4,11 @@
 import {
   RECEIVE_CATEGORYS,
   RECEIVE_ADDRESS,
-  RECEIVE_SHOPS
-} from './mutation-types'
+  RECEIVE_SHOPS,
+  RECEIVE_USER
+}
+  from
+    './mutation-types'
 
 export default {
 
@@ -13,11 +16,14 @@ export default {
     // 也就是得和state.js里面定义好的属性一一对应
     state.address = address;
   },
-  [RECEIVE_CATEGORYS](state,{categorys}) {
+  [RECEIVE_CATEGORYS](state, {categorys}) {
     state.categorys = categorys;
   },
-  [RECEIVE_SHOPS](state,{shops}) {
+  [RECEIVE_SHOPS](state, {shops}) {
     state.shops = shops;
+  },
+  [RECEIVE_USER](state, {user}) {
+    state.user = user;
   }
 
 }

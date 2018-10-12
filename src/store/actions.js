@@ -17,7 +17,8 @@ import {
 import {
   RECEIVE_CATEGORYS,
   RECEIVE_ADDRESS,
-  RECEIVE_SHOPS
+  RECEIVE_SHOPS,
+  RECEIVE_USER
 } from './mutation-types'
 
 export default {
@@ -55,6 +56,10 @@ export default {
       //commit触发mutations  // address与state.js的属性名一一对应
       commit(RECEIVE_SHOPS, {shops});
     }
+  },
+  //同步保存uesr
+  saveUser({commit}, user) {
+    commit(RECEIVE_USER, {user});
   }
 
 }
