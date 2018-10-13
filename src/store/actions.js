@@ -93,7 +93,7 @@ export default {
       commit(RECEIVE_INFO, {info})
     }
   },
-  //7,异步获取得到商家Info
+  //8,异步获取得到ratings
   async getRatings() {
     const result = await reqShpRatings();
     if (result.code === 0) {//成功了
@@ -101,7 +101,7 @@ export default {
       commit(RECEIVE_RATINGS, {ratings})
     }
   },
-  //7,异步获取得到商家Info
+  //9,异步获取得到goods
   async getGoods() {
     const result = await reqShpGoods();
     if (result.code === 0) {//成功了
