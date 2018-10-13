@@ -17,3 +17,12 @@ export const RECEIVE_USER = 'receive_user';
 //重置用户信息
 export const RESET_USER = 'reset_user';
 
+//获取商家信息
+export const RECEIVE_INFO = 'receive_info';
+
+//获取ratings
+export const RECEIVE_RATINGS = 'receive_ratings';
+
+//获取goods
+export const RECEIVE_GOODS = 'receive_goods';
+

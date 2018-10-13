@@ -31,5 +31,14 @@ export const reqUser = () => ajax('/api/userinfo');
 //8退出登录
 export const reqLogout = () => ajax('/api/logout');
 
+//9，请求商家信息
+export const reqShopInfo = () => ajax('/info');
+
+//10,请求商家goods
+export const reqShpGoods = () => ajax('/goods');
+
+//11,请求商家ratings
+export const reqShpRatings = () => ajax('/ratings');
+
 
 

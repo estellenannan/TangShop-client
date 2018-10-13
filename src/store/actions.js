@@ -13,7 +13,10 @@ import {
   reqFoodCategorys,
   reqShops,
   reqUser,
-  reqLogout
+  reqLogout,
+  reqShopInfo,
+  reqShpGoods,
+  reqShpRatings
 } from '../api/index';
 
 import {
@@ -21,12 +24,14 @@ import {
   RECEIVE_ADDRESS,
   RECEIVE_SHOPS,
   RECEIVE_USER,
-  RESET_USER
+  RESET_USER,
+  RECEIVE_INFO,
+  RECEIVE_GOODS,
+  RECEIVE_RATINGS
 } from './mutation-types'
 
 export default {
-  //发异步请求获取商家地址
-
+  //1,发异步请求获取商家地址
   async getAddress({commit, state}) {
     const {latitude, longitude} = state;
     // 发送ajax请求{code: 0, data: address}
@@ -37,7 +42,7 @@ export default {
       commit(RECEIVE_ADDRESS, {address})//commit传参和mutations里面的函数对应
     }
   },
-  //发异步请求获取Categorys
+  //2,发异步请求获取Categorys
   async getFoodCategorys({commit}) {
     const result = await reqFoodCategorys();
     if (result.code === 0) {//请求成功 // {code: 0, data: categorys}
@@ -47,7 +52,7 @@ export default {
     }
 
   },
-  //发异步请求获取商家
+  //3,发异步请求获取商家
   async getShops({commit, state}) {
 
     const {latitude, longitude} = state;
@@ -60,11 +65,11 @@ export default {
       commit(RECEIVE_SHOPS, {shops});
     }
   },
-  //同步保存uesr
+  //4,同步保存uesr
   saveUser({commit}, user) {
     commit(RECEIVE_USER, {user});
   },
-  // 异步退出登陆的action
+  // 5,异步退出登陆的action
   async logout({commit}) {
     const result = await reqLogout();
     if (result.code === 0) {
@@ -72,12 +77,36 @@ export default {
     }
   },
   /*reqUser*/
-// 异步获取用户的action 刷新后还再登录
+// 6,异步获取用户的action 刷新后还再登录
   async getUser({commit}) {
     const result = await  reqUser();
     if (result.code === 0) {
       const user = result.data;
       commit(RECEIVE_USER, {user});
+    }
+  },
+  //7,异步获取得到商家Info
+  async getInfo() {
+    const result = await reqShopInfo();
+    if (result.code === 0) {//成功了
+      const info = result.data;
+      commit(RECEIVE_INFO, {info})
+    }
+  },
+  //7,异步获取得到商家Info
+  async getRatings() {
+    const result = await reqShpRatings();
+    if (result.code === 0) {//成功了
+      const ratings = result.data;
+      commit(RECEIVE_RATINGS, {ratings})
+    }
+  },
+  //7,异步获取得到商家Info
+  async getGoods() {
+    const result = await reqShpGoods();
+    if (result.code === 0) {//成功了
+      const goods = result.data;
+      commit(RECEIVE_GOODS, {goods})
     }
   }
 
