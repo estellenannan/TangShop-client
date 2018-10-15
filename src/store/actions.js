@@ -15,8 +15,8 @@ import {
   reqUser,
   reqLogout,
   reqShopInfo,
-  reqShpGoods,
-  reqShpRatings
+  reqShopGoods,
+  reqShopRatings
 } from '../api/index';
 
 import {
@@ -85,8 +85,9 @@ export default {
       commit(RECEIVE_USER, {user});
     }
   },
+
   //7,异步获取得到商家Info
-  async getInfo() {
+  async getInfo({commit}) {
     const result = await reqShopInfo();
     if (result.code === 0) {//成功了
       const info = result.data;
@@ -94,20 +95,21 @@ export default {
     }
   },
   //8,异步获取得到ratings
-  async getRatings() {
-    const result = await reqShpRatings();
+  async getRatings({commit}) {
+    const result = await reqShopRatings();
     if (result.code === 0) {//成功了
       const ratings = result.data;
       commit(RECEIVE_RATINGS, {ratings})
     }
   },
   //9,异步获取得到goods
-  async getGoods() {
-    const result = await reqShpGoods();
+  async getGoods({commit}, cb) {
+    const result = await reqShopGoods();
     if (result.code === 0) {//成功了
       const goods = result.data;
-      commit(RECEIVE_GOODS, {goods})
+      commit(RECEIVE_GOODS, {goods});
+      // 在更新状态后立即调用
+      typeof cb === 'function' && cb()
     }
   }
-
 }

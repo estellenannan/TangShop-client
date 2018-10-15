@@ -1,15 +1,266 @@
 <template>
   <div>
-    ShopGoods
+    <div class="goods">
+      <div class="menu-wrapper">
+        <ul ref="typesUl">
+          <!--current-->
+          <li class="menu-item" v-for="(good, index) in goods" :key="index"
+              :class="{current: index===currentIndex}" @click="selectItem(index)">
+            <span class="text bottom-border-1px">
+              <img class="icon" :src="good.icon" v-if="good.icon">
+              {{good.name}}
+            </span>
+          </li>
+        </ul>
+      </div>
+      <div class="foods-wrapper">
+        <ul ref="foodsUl">
+          <li class="food-list-hook" v-for="(good, index) in goods" :key="index">
+            <h1 class="title">{{good.name}}</h1>
+            <ul>
+              <li class="food-item bottom-border-1px" v-for="(food, index) in good.foods"
+                  :key="index">
+                <div class="icon">
+                  <img width="57" height="57" :src="food.icon">
+                </div>
+                <div class="content">
+                  <h2 class="name">{{food.name}}</h2>
+                  <p class="desc">{{food.description}}</p>
+                  <div class="extra">
+                    <span class="count">月售{{food.sellCount}}份</span>
+                    <span>好评率{{food.rating}}%</span></div>
+                  <div class="price">
+                    <span class="now">￥{{food.price}}</span>
+                    <span class="old" v-if="food.oldPrice">￥{{food.oldPrice}}</span>
+                  </div>
+                  <div class="cartcontrol-wrapper">
+                    CartControl组件
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
+  /*
+  1. 滑动右侧列表, 左侧列表的当前分类同步变化
+  2. 点击左侧某个分类项, 右侧列表滑动到对应位置
+  3. 完善1的功能: 使用左侧当前分类总是可见
+
+
+  currentIndex: 当前分类的下标
+     右侧列表Y轴方向滑动的坐标: scrollY
+     右侧分类li的top值组成的数据: tops
+
+  tops: 列表显示之后统计, 后面不会再变化了
+  scrollY: 在右侧滑动过程中不断更新
+   */
+
+  import BScroll from 'better-scroll';
+  import {mapState} from 'vuex';
+
+
   export default {
     data() {
-      return {}
+      return {
+        scrollY: 0, // 右侧列表Y轴方向滑动的坐标
+        tops: [], // 右侧分类li的top值组成的数据
+      }
+    },
+    computed: {
+      ...mapState(['goods']),
+
+      currentIndex() {//当前分类下的下标
+        const {scrollY, tops} = this;
+        //这个scrollY值要>= 当前下标  <下一个下标
+        const index = tops.findIndex((top, index) => {
+          scrollY >= top && scrollY < tops[index + 1]
+          console.log('scrollY=', scrollY);
+        });
+        if (this.index != index) {//做优化 只有当前分类下标发生改变才去执行
+          this.index = index;
+          //做一个优化让右侧列表瞬间滚动到index所对应的位置
+          if (this.leftScroll) {//因为执行的先后顺序，有了数据才执行这一步
+            this.leftScroll.scrollToElement(this.$refs.typesUl.children[index], 200)
+
+          }
+        }
+        return index;
+      }
+    },
+    mounted() {
+      this.$store.dispatch('getGoods', () => {//数据更新啦
+        this.$nextTick(() => { // 列表界面更新显示后执行
+          this._initScroll();//初始化滚动对象
+          this._initTops();//初始化tops数据
+        })
+      });
+
+
+    },
+    methods: {
+//      /*ref="foodsUl" typesUl通过ref控制这个标签元素*/
+//      /* this.leftScroll给小vm添加 当前组件全都能用*/
+      _initScroll() { //数据更新完
+        //左侧good名字的滚动对象
+        this.leftScroll = new BScroll('.menu-wrapper', {
+          click: true//会派发点击事件
+        });
+        //右侧食物列表
+        this.rightScroll = new BScroll('.foods-wrapper', {
+          click: true,// 会派发点击事件
+          probeType: 1//非实时回调，非触摸滑动不会回调
+
+        });
+
+        //绑定scroll的监听
+        this.rightScroll.on('scroll', ({x, y}) => {
+          //更新scrollY
+          this.scrollY = Math.abs(y);
+        });
+        //绑定scrollEnd的监听
+        this.rightScroll.on('scrollEnd', ({x, y}) => {
+          //更新scrollY
+          this.scrollY = Math.abs(y);
+          console.log('scrollEnd', x, y);
+
+        });
+
+      },
+      _initTops() {
+        const tops = [];
+        let top = 0;
+        tops.push(top);
+        //  this.$refs.foodsUl.children/getElementsByClassName/querySelectorAll
+        //querySelectorAll相当于给伪数组加了一个forEach方法
+        const lis = this.$refs.foodsUl.querySelectorAll('food-list-hook');
+        lis.forEach(li => {
+          top += li.clientHight;//得到每个li的高度，累加等于新的top
+          tops.push(top);//产生的新top放进去
+        });
+        this.tops = tops;//更新状态
+        console.log('tops=', tops);
+      },
+
+      selectItem(index) {//选择左侧某个分类food列表
+        //得到index对应的目标位置的y坐标
+        const y = -this.tops[index];
+
+        //立即更新scrollY
+        this.scrollY = -y;
+
+        //让右侧列表滚动到此处
+        this.rightScroll.scrollTo(0, y, 300);
+        console.log('scrollTo=', scrollTo);
+      }
+
     }
+
+
   }
 </script>
-<style lang="stylus" type="text/stylus" rel="stylesheet/stylus">
+<style lang="stylus" rel="stylesheet/stylus">
+  @import "../../../common/stylus/mixins.styl"
 
+  .goods
+    display: flex
+    position: absolute
+    top: 225px
+    bottom: 46px
+    width: 100%
+    background: #fff;
+    overflow: hidden
+    .menu-wrapper
+      flex: 0 0 80px
+      width: 80px
+      background: #f3f5f7
+      .menu-item
+        display: table
+        height: 54px
+        width: 56px
+        padding: 0 12px
+        line-height: 14px
+        &.current
+          position: relative
+          z-index: 10
+          margin-top: -1px
+          background: #fff
+          color: $green
+          font-weight: 700
+          .text
+            border-none()
+        .icon
+          display: inline-block
+          vertical-align: top
+          width: 12px
+          height: 12px
+          margin-right: 2px
+          background-size: 12px 12px
+          background-repeat: no-repeat
+        .text
+          display: table-cell
+          width: 56px
+          vertical-align: middle
+          bottom-border-1px(rgba(7, 17, 27, 0.1))
+          font-size: 12px
+    .foods-wrapper
+      flex: 1
+      .title
+        padding-left: 14px
+        height: 26px
+        line-height: 26px
+        border-left: 2px solid #d9dde1
+        font-size: 12px
+        color: rgb(147, 153, 159)
+        background: #f3f5f7
+      .food-item
+        display: flex
+        margin: 18px
+        padding-bottom: 18px
+        bottom-border-1px(rgba(7, 17, 27, 0.1))
+        &:last-child
+          border-none()
+          margin-bottom: 0
+        .icon
+          flex: 0 0 57px
+          margin-right: 10px
+        .content
+          flex: 1
+          .name
+            margin: 2px 0 8px 0
+            height: 14px
+            line-height: 14px
+            font-size: 14px
+            color: rgb(7, 17, 27)
+          .desc, .extra
+            line-height: 10px
+            font-size: 10px
+            color: rgb(147, 153, 159)
+          .desc
+            line-height: 12px
+            margin-bottom: 8px
+          .extra
+            .count
+              margin-right: 12px
+          .price
+            font-weight: 700
+            line-height: 24px
+            .now
+              margin-right: 8px
+              font-size: 14px
+              color: rgb(240, 20, 20)
+            .old
+              text-decoration: line-through
+              font-size: 10px
+              color: rgb(147, 153, 159)
+          .cartcontrol-wrapper
+            position: absolute
+            right: 0
+            bottom: 12px
 </style>
+

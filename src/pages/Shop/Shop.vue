@@ -25,8 +25,8 @@
     components: {
       ShopHeader
     },
-    mounted () {//得到商家的数据
-  this.$store.dispatch('getInfo')
+    mounted() {//得到商家的数据
+      this.$store.dispatch('getInfo')
     }
   }
 </script>

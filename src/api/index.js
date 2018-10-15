@@ -19,10 +19,10 @@ export const reqShops = (latitude, longitude) => ajax('/api/shops', {latitude, l
 export const reqPwdLogin = ({name, pwd, captcha}) => ajax('/api/login_pwd', {name, pwd, captcha}, 'POST');
 
 //5,获取短信验证码
-export const reqSendCode = (phone) => ajax('api/sendcode', {phone});
+export const reqSendCode = (phone) => ajax('/api/sendcode', {phone});
 
 //6,手机号验证码登录
-export const reqSmsLogin = ({phone, code}) => ajax('api/login_sms', {phone, code}, 'POST');
+export const reqSmsLogin = ({phone, code}) => ajax('/api/login_sms', {phone, code}, 'POST');
 
 
 //7,获取用户信息(根据会话)
@@ -35,10 +35,10 @@ export const reqLogout = () => ajax('/api/logout');
 export const reqShopInfo = () => ajax('/info');
 
 //10,请求商家goods
-export const reqShpGoods = () => ajax('/goods');
+export const reqShopGoods = () => ajax('/goods');
 
 //11,请求商家ratings
-export const reqShpRatings = () => ajax('/ratings');
+export const reqShopRatings = () => ajax('/ratings');
 
 
 
