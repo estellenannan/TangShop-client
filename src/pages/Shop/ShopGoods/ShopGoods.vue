@@ -19,7 +19,7 @@
             <h1 class="title">{{good.name}}</h1>
             <ul>
               <li class="food-item bottom-border-1px" v-for="(food, index) in good.foods"
-                  :key="index">
+                  :key="index" @click="showFood(food)">
                 <div class="icon">
                   <img width="57" height="57" :src="food.icon">
                 </div>
@@ -34,7 +34,7 @@
                     <span class="old" v-if="food.oldPrice">￥{{food.oldPrice}}</span>
                   </div>
                   <div class="cartcontrol-wrapper">
-                    CartControl组件
+                    <CartControl :food="food"/>
                   </div>
                 </div>
               </li>
@@ -42,7 +42,9 @@
           </li>
         </ul>
       </div>
+      <ShopCart></ShopCart>
     </div>
+    <Food :food="food" ref="food"></Food>
   </div>
 </template>
 
@@ -51,7 +53,6 @@
   1. 滑动右侧列表, 左侧列表的当前分类同步变化
   2. 点击左侧某个分类项, 右侧列表滑动到对应位置
   3. 完善1的功能: 使用左侧当前分类总是可见
-
 
   currentIndex: 当前分类的下标
      右侧列表Y轴方向滑动的坐标: scrollY
@@ -63,13 +64,16 @@
 
   import BScroll from 'better-scroll';
   import {mapState} from 'vuex';
-
+  import Food from '../../../components/Food/Food.vue';
+  import ShopCart from '../../../components/ShopCart/ShopCart.vue';
 
   export default {
+
     data() {
       return {
         scrollY: 0, // 右侧列表Y轴方向滑动的坐标
         tops: [], // 右侧分类li的top值组成的数据
+        food: {}, // 当前需要显示的food
       }
     },
     computed: {
@@ -77,20 +81,23 @@
 
       currentIndex() {//当前分类下的下标
         const {scrollY, tops} = this;
+
         //这个scrollY值要>= 当前下标  <下一个下标
-        const index = tops.findIndex((top, index) => {
-          scrollY >= top && scrollY < tops[index + 1]
-          console.log('scrollY=', scrollY);
-        });
-        if (this.index != index) {//做优化 只有当前分类下标发生改变才去执行
+        const index = tops.findIndex((top, index) => scrollY >= top && scrollY < tops[index + 1]);
+
+        console.log('scrollY=', scrollY);
+        if (this.index != index) {
+          //做优化 只有当前分类下标发生改变才去执行
           this.index = index;
+
           //做一个优化让右侧列表瞬间滚动到index所对应的位置
-          if (this.leftScroll) {//因为执行的先后顺序，有了数据才执行这一步
+          if (this.leftScroll) {
+            //因为执行的先后顺序，有了数据才执行这一步
             this.leftScroll.scrollToElement(this.$refs.typesUl.children[index], 200)
 
           }
         }
-        return index;
+        return index
       }
     },
     mounted() {
@@ -104,8 +111,8 @@
 
     },
     methods: {
-//      /*ref="foodsUl" typesUl通过ref控制这个标签元素*/
-//      /* this.leftScroll给小vm添加 当前组件全都能用*/
+      /*ref="foodsUl" typesUl通过ref控制这个标签元素*/
+      /* this.leftScroll给小vm添加 当前组件全都能用*/
       _initScroll() { //数据更新完
         //左侧good名字的滚动对象
         this.leftScroll = new BScroll('.menu-wrapper', {
@@ -122,6 +129,7 @@
         this.rightScroll.on('scroll', ({x, y}) => {
           //更新scrollY
           this.scrollY = Math.abs(y);
+          console.log('scroll', x, y);
         });
         //绑定scrollEnd的监听
         this.rightScroll.on('scrollEnd', ({x, y}) => {
@@ -136,11 +144,12 @@
         const tops = [];
         let top = 0;
         tops.push(top);
+
         //  this.$refs.foodsUl.children/getElementsByClassName/querySelectorAll
         //querySelectorAll相当于给伪数组加了一个forEach方法
-        const lis = this.$refs.foodsUl.querySelectorAll('food-list-hook');
+        const lis = this.$refs.foodsUl.querySelectorAll('.food-list-hook');
         lis.forEach(li => {
-          top += li.clientHight;//得到每个li的高度，累加等于新的top
+          top += li.clientHeight;//得到每个li的高度，累加等于新的top
           tops.push(top);//产生的新top放进去
         });
         this.tops = tops;//更新状态
@@ -150,15 +159,25 @@
       selectItem(index) {//选择左侧某个分类food列表
         //得到index对应的目标位置的y坐标
         const y = -this.tops[index];
-
+        console.log('y', y);
         //立即更新scrollY
         this.scrollY = -y;
-
         //让右侧列表滚动到此处
         this.rightScroll.scrollTo(0, y, 300);
         console.log('scrollTo=', scrollTo);
+      },
+
+      showFood(food) {
+        // 更新food数据
+        this.food = food;
+        //利用ref属性来获取子组件的方法,父组件调用它
+        this.$refs.food.toggleShow();
       }
 
+    },
+    components: {
+      Food,
+      ShopCart
     }
 
 

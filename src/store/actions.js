@@ -27,8 +27,12 @@ import {
   RESET_USER,
   RECEIVE_INFO,
   RECEIVE_GOODS,
-  RECEIVE_RATINGS
+  RECEIVE_RATINGS,
+  INCREMENT_FOOD_COUNT,
+  DECREMENT_FOOD_COUNT,
+  CLEAR_CART
 } from './mutation-types'
+import {increment} from "../../../../01,React-zhang/react-demo/src-redux/redux/actions";
 
 export default {
   //1,发异步请求获取商家地址
@@ -87,19 +91,23 @@ export default {
   },
 
   //7,异步获取得到商家Info
-  async getInfo({commit}) {
+  async getInfo({commit}, cb) {
     const result = await reqShopInfo();
     if (result.code === 0) {//成功了
       const info = result.data;
-      commit(RECEIVE_INFO, {info})
+      commit(RECEIVE_INFO, {info});
+      // 在更新状态后立即调用
+      typeof cb === 'function' && cb()
     }
   },
   //8,异步获取得到ratings
-  async getRatings({commit}) {
+  async getRatings({commit}, cb) {
     const result = await reqShopRatings();
     if (result.code === 0) {//成功了
       const ratings = result.data;
-      commit(RECEIVE_RATINGS, {ratings})
+      commit(RECEIVE_RATINGS, {ratings});
+      // 在更新状态后立即调用
+      typeof cb === 'function' && cb()
     }
   },
   //9,异步获取得到goods
@@ -111,5 +119,17 @@ export default {
       // 在更新状态后立即调用
       typeof cb === 'function' && cb()
     }
+  },
+  // 10,同步得到action 进行判断增加或者减少
+  updateFoodCount({commit}, {isAdd, food}) {
+    if (isAdd) {//增加
+      commit(INCREMENT_FOOD_COUNT, {food})
+    } else {//减少
+      commit(DECREMENT_FOOD_COUNT, {food})
+    }
+  },
+  //11,清空购物车
+  clearCart({commit}) {
+    commit(CLEAR_CART);
   }
 }

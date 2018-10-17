@@ -3,48 +3,53 @@
     <div class="ratings-content">
       <div class="overview">
         <div class="overview-left">
-          <h1 class="score">4.5</h1>
+          <h1 class="score">{{info.score}}</h1>
           <div class="title">综合评分</div>
-          <div class="rank">高于周边商家90%</div>
+          <div class="rank">高于周边商家{{info.rankRate}}%</div>
         </div>
         <div class="overview-right">
           <div class="score-wrapper">
             <span class="title">服务态度</span>
-            <div>Star组件</div>
-            <span class="score">4.4</span>
+            <Star :score="info.serviceScore" :size="36"/>
+            <span class="score">{{info.serviceScore}}</span>
           </div>
           <div class="score-wrapper">
             <span class="title">商品评分</span>
-            <div>Star组件</div>
-            <span class="score">4.6</span></div>
+            <Star :score="info.foodScore" :size="36"/>
+            <span class="score">{{info.foodScore}}</span>
+          </div>
           <div class="delivery-wrapper">
             <span class="title">送达时间</span>
-            <span class="delivery">30分钟</span>
+            <span class="delivery">{{info.deliveryTime}}分钟</span>
           </div>
         </div>
       </div>
 
-      <div class="split"></div>
+      <Split></Split>
 
-      <div>RatingSelect组件</div>
+      <RatingsFilter
+        :onlyContent="onlyContent"
+        :selectType="selectType"
+        @toggleOnlyContent="toggleOnlyContent"
+        @setSelectType="setSelectType"/>
 
       <div class="rating-wrapper">
         <ul>
-          <li class="rating-item">
+          <li class="rating-item" v-for="(rating,index) in filterRatings" :key="index">
             <div class="avatar">
-              <img width="28" height="28" src="http://static.galileo.xiaojukeji.com/static/tms/default_header.png">
+              <img width="28" height="28" :src="rating.avatar">
             </div>
             <div class="content">
-              <h1 class="name">xxx</h1>
+              <h1 class="name">{{rating.username}}</h1>
               <div class="star-wrapper">
-                <div>Star组件</div>
-                <span class="delivery">30</span>
+                <Star :size="36" :score="rating.score"/>
+                <span class="delivery">{{rating.deliveryTime}}</span>
               </div>
-              <p class="text">还可以</p>
+              <p class="text">{{rating.text}}</p>
               <div class="recommend">
                 <span class="iconfont icon-thumb_up"></span>
               </div>
-              <div class="time">2016-12-11 12:02:13</div>
+              <div class="time">{{rating.rateTime | dataFormat}}</div>
             </div>
           </li>
         </ul>
@@ -54,13 +59,64 @@
 </template>
 <script>
   import {mapState} from 'vuex';
+  import Bscroll from 'better-scroll';
+  import Star from '../../../components/stars/Star.vue';
+  import RatingsFilter from '../../../components/RatingsFilter/RatingsFilter.vue';
 
   export default {
-    computed: {
-      ...mapState(['ratings'])
+
+    //要遍历已经过滤过的评价，方便展示数据
+    data() {
+      return {
+        onlyContent: false,//false:不需要rating.text  true：仅仅显示rating.text
+        selectType: 2,//0 满意   1 不满意   2显示全部
+      }
     },
-    mounted () {
-      this.$store.dispatch('getRatings')
+    computed: {
+      ...mapState(['ratings', 'info']),
+      filterRatings() {
+        /*
+          条件1: 选择的类型与rate的类型
+            selectType: 0/1/2
+            rateType: 0/1
+            selectType===2 || selectType===rateType
+           */
+
+        /*
+        条件2: 是否只带文本的条件与rate的text
+          onlyContent: true/false
+          text: 有值/没值
+          !onlyContent || text.length>0
+         */
+        const {ratings, selectType, onlyContent} = this;
+        return ratings.filter((rating) => {
+
+          const {rateType, text} = rating;
+          return (selectType === 2 || selectType === rateType) && (!onlyContent || text.length > 0);
+        })
+      }
+    },
+    mounted() {
+      this.$store.dispatch('getRatings', () => {
+        this.$nextTick(() => {
+          new Bscroll('.ratings', {
+            clisk: true
+          })
+        })
+      })
+    },
+    components: {
+      Star,
+      RatingsFilter
+    },
+    methods: {
+      //这两个方法传给子组件
+      toggleOnlyContent() {
+        this.onlyContent = !this.onlyContent;
+      },
+      setSelectType(selectType) {
+        this.selectType = selectType
+      }
     }
 
   }
@@ -70,7 +126,7 @@
 
   .ratings
     position: absolute
-    top: 174px
+    top: 220px
     bottom: 0
     left: 0
     width: 100%

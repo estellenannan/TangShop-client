@@ -1,6 +1,9 @@
 /*
 * 包含n个用于直接更新状态数据的方法的对象
 * */
+
+import Vue from 'vue';
+
 import {
   RECEIVE_CATEGORYS,
   RECEIVE_ADDRESS,
@@ -9,10 +12,11 @@ import {
   RESET_USER,
   RECEIVE_INFO,
   RECEIVE_RATINGS,
-  RECEIVE_GOODS
-}
-  from
-    './mutation-types'
+  RECEIVE_GOODS,
+  INCREMENT_FOOD_COUNT,
+  DECREMENT_FOOD_COUNT,
+  CLEAR_CART
+} from './mutation-types';
 
 export default {
 
@@ -32,14 +36,36 @@ export default {
   [RESET_USER](state) {
     state.user = {};
   },
-  [RECEIVE_INFO](state,{info}) {
+  [RECEIVE_INFO](state, {info}) {
     state.info = info;
   },
-  [RECEIVE_RATINGS](state,{ratings}) {
+  [RECEIVE_RATINGS](state, {ratings}) {
     state.ratings = ratings;
   },
-  [RECEIVE_GOODS](state,{goods}) {
+  [RECEIVE_GOODS](state, {goods}) {
     state.goods = goods;
   },
+  [INCREMENT_FOOD_COUNT](state, {food}) {
+    if (food.count) {
+      food.count++
+    } else {//新属性用set方法
+      Vue.set(food, 'count', 1);// 新添加的属性有数据绑定 ==>界面会更新
+      state.cartFoods.push(food);//更新到的food也保存到购物车数组中，方便调用
+    }
+  },
+  [DECREMENT_FOOD_COUNT](state, {food}) {
+    if (food.count > 0) {
+      food.count--;
+      //如果购物车没有食物，清空它
+      if (food.count === 0) {
+        state.cartFoods.splice(state.cartFoods.indexOf(food), 1)
+      }
+    }
+  },
+  [CLEAR_CART](state) {
+//把购物车中所有food的count的数量记为0；重置cartFoods
+    state.cartFoods.forEach(food => food.count = 0);
+    state.cartFoods = [];
+  }
 
 }

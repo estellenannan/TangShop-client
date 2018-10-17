@@ -26,3 +26,12 @@ export const RECEIVE_RATINGS = 'receive_ratings';
 //获取goods
 export const RECEIVE_GOODS = 'receive_goods';
 
+//增加食物数量
+export const INCREMENT_FOOD_COUNT = 'increment_food_count';
+
+//减少食物数量
+export const DECREMENT_FOOD_COUNT = 'decrement_food_count';
+
+// 清空购物车
+export const CLEAR_CART = 'clear_cart';
+
